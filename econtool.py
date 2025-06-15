@@ -419,15 +419,13 @@ def word_report(past_df, fut_df, charts, aef_df):
 
     # Add main heading and ensure black text
     main_heading = doc.add_heading("Lost-Earnings Analysis", 0)
-    for paragraph in main_heading.paragraphs:
-        for run in paragraph.runs:
-            run.font.color.rgb = RGBColor(0, 0, 0)
+    for run in main_heading.runs:
+        run.font.color.rgb = RGBColor(0, 0, 0)
 
     # Add key information section
     key_heading = doc.add_heading("Key Dates and Parameters", level=1)
-    for paragraph in key_heading.paragraphs:
-        for run in paragraph.runs:
-            run.font.color.rgb = RGBColor(0, 0, 0)
+    for run in key_heading.runs:
+        run.font.color.rgb = RGBColor(0, 0, 0)
     info_table = doc.add_table(rows=8, cols=2)
     info_table.style = "Table Grid"  # Changed from "Light Shading Accent 1" to black and white
 
@@ -472,24 +470,21 @@ def word_report(past_df, fut_df, charts, aef_df):
     # Add AEF table
     doc.add_page_break()
     aef_heading = doc.add_heading("Adjusted Earnings Factor (AEF)", level=1)
-    for paragraph in aef_heading.paragraphs:
-        for run in paragraph.runs:
-            run.font.color.rgb = RGBColor(0, 0, 0)
+    for run in aef_heading.runs:
+        run.font.color.rgb = RGBColor(0, 0, 0)
     _tbl(doc, aef_df)
 
     # Add loss tables
     doc.add_page_break()
     past_heading = doc.add_heading("Past Losses (DOI → DOR)", level=1)
-    for paragraph in past_heading.paragraphs:
-        for run in paragraph.runs:
-            run.font.color.rgb = RGBColor(0, 0, 0)
+    for run in past_heading.runs:
+        run.font.color.rgb = RGBColor(0, 0, 0)
     _tbl(doc, past_df)
 
     doc.add_page_break()
     future_heading = doc.add_heading("Future Losses (DOR → Retirement)", level=1)
-    for paragraph in future_heading.paragraphs:
-        for run in paragraph.runs:
-            run.font.color.rgb = RGBColor(0, 0, 0)
+    for run in future_heading.runs:
+        run.font.color.rgb = RGBColor(0, 0, 0)
     _tbl(doc, fut_df)
 
     # Add charts
@@ -502,9 +497,8 @@ def word_report(past_df, fut_df, charts, aef_df):
             tmp.close()
             doc.add_page_break()
             chart_heading = doc.add_heading(title, level=2)
-            for paragraph in chart_heading.paragraphs:
-                for run in paragraph.runs:
-                    run.font.color.rgb = RGBColor(0, 0, 0)
+            for run in chart_heading.runs:
+                run.font.color.rgb = RGBColor(0, 0, 0)
             doc.add_picture(tmp.name, width=Inches(6))
 
     out = io.BytesIO()
