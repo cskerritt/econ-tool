@@ -11,6 +11,8 @@ from typing import List, Sequence, Optional
 import io, tempfile
 from docx import Document
 from docx.shared import Inches
+from docx.enum.section import WD_ORIENT
+from docx.shared import RGBColor
 
 # ════════════════════════════════════════════════════════════════
 # 0.  Page configuration & intro                                  
@@ -273,7 +275,7 @@ for factor in factors:
 
 # Final AEF
 aef_data.append(["", "", "", ""])
-aef_data.append([f"**Final AEF**", f"**{aef_value*100:.2f}%**", f"**{aef_value:.2f}**", f"**Total Calculation Result**"])
+aef_data.append([f"Final AEF", f"{aef_value*100:.2f}%", f"{aef_value:.2f}", f"Total Calculation Result"])
 
 # Display as DataFrame with formula column
 aef_df = pd.DataFrame(aef_data, columns=["Factor", "Percentage", "Decimal", "Formula"])
@@ -406,41 +408,88 @@ if "AIF-Adjusted Loss ($)" in df_future:
 # ════════════════════════════════════════════════════════════════
 def word_report(past_df, fut_df, charts, aef_df):
     doc = Document()
-    doc.add_heading("Lost-Earnings Analysis", 0)
+
+    # Set document to landscape orientation
+    section = doc.sections[0]
+    section.orientation = WD_ORIENT.LANDSCAPE
+    # Swap page dimensions for landscape
+    new_width, new_height = section.page_height, section.page_width
+    section.page_width = new_width
+    section.page_height = new_height
+
+    # Add main heading and ensure black text
+    main_heading = doc.add_heading("Lost-Earnings Analysis", 0)
+    for paragraph in main_heading.paragraphs:
+        for run in paragraph.runs:
+            run.font.color.rgb = RGBColor(0, 0, 0)
 
     # Add key information section
-    doc.add_heading("Key Dates and Parameters", level=1)
+    key_heading = doc.add_heading("Key Dates and Parameters", level=1)
+    for paragraph in key_heading.paragraphs:
+        for run in paragraph.runs:
+            run.font.color.rgb = RGBColor(0, 0, 0)
     info_table = doc.add_table(rows=8, cols=2)
-    info_table.style = "Light Shading Accent 1"
+    info_table.style = "Table Grid"  # Changed from "Light Shading Accent 1" to black and white
 
     # Add key dates and parameters
     info_data = [
         ["Date of Birth", dob.strftime('%m/%d/%Y')],
         ["Date of Injury", doi.strftime('%m/%d/%Y')],
         ["Date of Report", dor.strftime('%m/%d/%Y')],
-        ["Life Expectancy (LE)", f"{le:.1f} years"],
-        ["Worklife Expectancy (WLE)", f"{wle:.1f} years"],
+        ["Life Expectancy (LE)", f"{le:.2f} years"],
+        ["Worklife Expectancy (WLE)", f"{wle:.2f} years"],
         ["Statistical Death Date", statistical_death_date.strftime('%m/%d/%Y')],
         ["Statistical Retirement Date", statistical_retirement_date.strftime('%m/%d/%Y')],
-        ["Final AEF", f"{aef_value:.4f}"]
+        ["Final AEF", f"{aef_value:.2f}"]
     ]
 
     for i, (label, value) in enumerate(info_data):
-        info_table.cell(i, 0).text = label
-        info_table.cell(i, 1).text = str(value)
+        # Set label cell
+        label_cell = info_table.cell(i, 0)
+        label_cell.text = label
+        # Ensure black text
+        for paragraph in label_cell.paragraphs:
+            for run in paragraph.runs:
+                run.font.color.rgb = RGBColor(0, 0, 0)
+
+        # Set value cell with proper formatting
+        value_cell = info_table.cell(i, 1)
+        if isinstance(value, (int, float)) and not pd.isna(value):
+            # Check if this is the Final AEF value (should be formatted as percentage)
+            if label == "Final AEF":
+                value_cell.text = f"{value * 100:.2f}%"
+            elif abs(value) >= 1000:
+                value_cell.text = f"{value:,.2f}"
+            else:
+                value_cell.text = f"{value:.2f}"
+        else:
+            value_cell.text = str(value).replace("**", "")  # Remove any asterisks
+        # Ensure black text
+        for paragraph in value_cell.paragraphs:
+            for run in paragraph.runs:
+                run.font.color.rgb = RGBColor(0, 0, 0)
 
     # Add AEF table
     doc.add_page_break()
-    doc.add_heading("Adjusted Earnings Factor (AEF)", level=1)
+    aef_heading = doc.add_heading("Adjusted Earnings Factor (AEF)", level=1)
+    for paragraph in aef_heading.paragraphs:
+        for run in paragraph.runs:
+            run.font.color.rgb = RGBColor(0, 0, 0)
     _tbl(doc, aef_df)
 
     # Add loss tables
     doc.add_page_break()
-    doc.add_heading("Past Losses (DOI → DOR)", level=1)
+    past_heading = doc.add_heading("Past Losses (DOI → DOR)", level=1)
+    for paragraph in past_heading.paragraphs:
+        for run in paragraph.runs:
+            run.font.color.rgb = RGBColor(0, 0, 0)
     _tbl(doc, past_df)
 
     doc.add_page_break()
-    doc.add_heading("Future Losses (DOR → Retirement)", level=1)
+    future_heading = doc.add_heading("Future Losses (DOR → Retirement)", level=1)
+    for paragraph in future_heading.paragraphs:
+        for run in paragraph.runs:
+            run.font.color.rgb = RGBColor(0, 0, 0)
     _tbl(doc, fut_df)
 
     # Add charts
@@ -452,7 +501,10 @@ def word_report(past_df, fut_df, charts, aef_df):
             tmp.write(buf.read())
             tmp.close()
             doc.add_page_break()
-            doc.add_heading(title, level=2)
+            chart_heading = doc.add_heading(title, level=2)
+            for paragraph in chart_heading.paragraphs:
+                for run in paragraph.runs:
+                    run.font.color.rgb = RGBColor(0, 0, 0)
             doc.add_picture(tmp.name, width=Inches(6))
 
     out = io.BytesIO()
@@ -463,7 +515,7 @@ def word_report(past_df, fut_df, charts, aef_df):
 def _tbl(doc, df):
     r, c = df.shape
     t = doc.add_table(r+1, c)
-    t.style = "Light Shading Accent 1"
+    t.style = "Table Grid"  # Changed from "Light Shading Accent 1" to black and white
 
     # Set column widths based on content type
     for i, col in enumerate(t.columns):
@@ -479,21 +531,63 @@ def _tbl(doc, df):
     for j, col in enumerate(df.columns):
         cell = t.cell(0, j)
         cell.text = str(col)
-        # Make header bold
+        # Make header bold and black
         for paragraph in cell.paragraphs:
             for run in paragraph.runs:
                 run.bold = True
+                run.font.color.rgb = RGBColor(0, 0, 0)  # Ensure black text
 
     # Add data
     for i in range(r):
         for j in range(c):
-            cell_text = str(df.iat[i, j])
-            t.cell(i+1, j).text = cell_text
-            # Make final AEF row bold
+            cell_value = df.iat[i, j]
+            column_name = df.columns[j]
+
+            # Format numeric values based on column type
+            if isinstance(cell_value, (int, float)) and not pd.isna(cell_value):
+                # Check if this is a percentage column
+                if "%" in column_name:
+                    # For percentage columns, format as XX.XX%
+                    if "Portion of Year" in column_name or "AIF" in column_name:
+                        # These are already multiplied by 100
+                        cell_text = f"{cell_value:.2f}%"
+                    else:
+                        # These need to be multiplied by 100 (like decimal values in AEF table)
+                        cell_text = f"{cell_value * 100:.2f}%" if cell_value <= 1 else f"{cell_value:.2f}%"
+                elif abs(cell_value) >= 1000:
+                    cell_text = f"{cell_value:,.2f}"
+                else:
+                    cell_text = f"{cell_value:.2f}"
+            else:
+                # Handle string values (like pre-formatted percentages in AEF table)
+                cell_text = str(cell_value)
+                # If it's in the Percentage column but already a string with %, ensure proper formatting
+                if "Percentage" in column_name and "%" in cell_text:
+                    # Extract the numeric part and reformat to ensure 2 decimal places
+                    try:
+                        numeric_part = float(cell_text.replace("%", ""))
+                        cell_text = f"{numeric_part:.2f}%"
+                    except ValueError:
+                        # If conversion fails, keep original string
+                        pass
+
+            # Remove asterisks from text
+            cell_text = cell_text.replace("**", "")
+
+            cell = t.cell(i+1, j)
+            cell.text = cell_text
+
+            # Make final AEF row bold and black
             if "Final AEF" in cell_text:
-                for paragraph in t.cell(i+1, j).paragraphs:
+                for paragraph in cell.paragraphs:
                     for run in paragraph.runs:
                         run.bold = True
+                        run.font.color.rgb = RGBColor(0, 0, 0)  # Ensure black text
+            else:
+                # Ensure all other text is black
+                for paragraph in cell.paragraphs:
+                    for run in paragraph.runs:
+                        run.font.color.rgb = RGBColor(0, 0, 0)
 
 doc_bytes = word_report(df_past, df_future, (buf1, buf2, buf3), aef_df)
 st.download_button("⬇️ Word Report",
