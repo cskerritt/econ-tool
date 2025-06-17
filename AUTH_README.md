@@ -1,7 +1,7 @@
 # Authentication Setup for Economic Tool
 
 ## Overview
-The Economic Tool now includes user authentication using `streamlit-authenticator`. Users must sign in before accessing the application.
+The Economic Tool now includes comprehensive user authentication using `streamlit-authenticator`. Users can register new accounts, sign in, reset passwords, and manage their profiles.
 
 ## Default Login Credentials
 
@@ -13,22 +13,39 @@ The Economic Tool now includes user authentication using `streamlit-authenticato
 
 ## Files Added
 
-1. **`auth.py`** - Authentication module with login/logout functionality
+1. **`auth.py`** - Authentication module with login/logout/registration functionality
 2. **`config.yaml`** - User credentials and authentication configuration
 3. **`generate_passwords.py`** - Script to generate secure password hashes
 4. **Updated `requirements.txt`** - Added authentication dependencies
 
-## How It Works
+## Features
 
-1. When users visit the application, they see a login form
-2. After successful authentication, users are welcomed by name
-3. A logout button appears in the sidebar
+### Login & Registration
+1. **Login Tab**: Existing users can sign in with username/password
+2. **Register Tab**: New users can create accounts (no pre-authorization required)
+3. **Forgot Password Tab**: Users can reset forgotten passwords
 4. User session is maintained with secure cookies
 
-## Customizing Users
+### User Account Management
+Once logged in, users can access account settings in the sidebar:
+1. **Reset Password**: Change current password
+2. **Update Details**: Modify name and email address
 
-To add/modify users:
+## User Registration Process
 
+### For New Users
+1. Visit the application
+2. Click on the "Register" tab
+3. Fill in the registration form:
+   - Username (must be unique)
+   - Name (display name)
+   - Email address
+   - Password
+4. Click "Register user"
+5. Switch to "Login" tab and sign in with new credentials
+
+### For Administrators
+To manually add users or modify existing ones:
 1. Edit the `config.yaml` file to add new users
 2. Run `python generate_passwords.py` to hash the passwords
 3. Restart the Streamlit application
@@ -37,6 +54,10 @@ To add/modify users:
 
 - Passwords are hashed using bcrypt
 - Session cookies with configurable expiration
+- User registration with automatic config updates
+- Password reset functionality
+- Forgot password with random password generation
+- User profile management
 - Logout functionality
 - User session management
 

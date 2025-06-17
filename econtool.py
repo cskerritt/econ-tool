@@ -15,7 +15,7 @@ from docx.enum.section import WD_ORIENT
 from docx.shared import RGBColor
 
 # Import authentication module
-from auth import check_authentication, get_current_user
+from auth import check_authentication, get_current_user, show_password_reset, show_update_user_details
 
 # ════════════════════════════════════════════════════════════════
 # 0.  Page configuration & authentication
@@ -133,6 +133,22 @@ def schedule_block(
 # 3.  SIDEBAR – Global parameters                                 
 # ════════════════════════════════════════════════════════════════
 with st.sidebar:
+    # User Settings Section
+    with st.expander("⚙️ User Settings", expanded=False):
+        st.markdown("**Account Management**")
+
+        # Create tabs for different user settings
+        settings_tab1, settings_tab2 = st.tabs(["Reset Password", "Update Details"])
+
+        with settings_tab1:
+            st.markdown("**Change Your Password**")
+            show_password_reset()
+
+        with settings_tab2:
+            st.markdown("**Update Your Information**")
+            show_update_user_details()
+
+    st.markdown("---")
     st.header("🗓 Key Dates")
     dob = st.date_input("Date of birth", date(1980,1,1),
                         help="Used only for the Age column.",
