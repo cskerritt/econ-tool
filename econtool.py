@@ -14,11 +14,21 @@ from docx.shared import Inches
 from docx.enum.section import WD_ORIENT
 from docx.shared import RGBColor
 
+# Import authentication module
+from auth import check_authentication, get_current_user
+
 # ════════════════════════════════════════════════════════════════
-# 0.  Page configuration & intro                                  
+# 0.  Page configuration & authentication
 # ════════════════════════════════════════════════════════════════
 st.set_page_config(page_title="Lost-Earnings Schedule",
                    layout="wide", initial_sidebar_state="expanded")
+
+# Check authentication first - this will show login form if not authenticated
+if not check_authentication():
+    st.stop()
+
+# Get current user info
+current_user = get_current_user()
 
 st.title("Lost-Earnings Schedule Generator")
 st.caption(
@@ -26,6 +36,9 @@ st.caption(
     "with optional mitigation offsets, Tinari adjustments, and present-value "
     "discounting.  Each section below contains helper text to guide you."
 )
+
+# Show welcome message with user name
+st.success(f"Welcome back, {current_user['name']}! 👋")
 
 # ════════════════════════════════════════════════════════════════
 # 1.  Helper objects & core math                                  

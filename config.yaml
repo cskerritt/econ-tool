@@ -1,0 +1,19 @@
+cookie:
+  expiry_days: 30
+  key: some_signature_key_here
+  name: some_cookie_name
+credentials:
+  usernames:
+    admin:
+      email: admin@econtools.com
+      name: Administrator
+      password: $2b$12$cXfQYMUqCHWoNcsLN0lEke8ad7grFCa58GpdfB4XtSPswkVxv4Sai
+    demo:
+      email: demo@econtools.com
+      name: Demo User
+      password: $2b$12$FkINCP1Ctr9XVxamnq6YsO3PIb4NKDH6AxIDS4GokkdetBY3DdAiu
+    user1:
+      email: user1@econtools.com
+      name: Economic Analyst
+      password: $2b$12$V0SLBuc3JU6wKplgVlYbmeWxFnTzATvXOpR0ox4LuBFmmwG9CY2MC
+
